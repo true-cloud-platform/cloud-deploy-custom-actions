@@ -1,0 +1,29 @@
+apiVersion: skaffold/v4beta9
+kind: Config
+metadata:
+  name: custom-actions
+
+customActions:
+- name: custom-render
+  containers:
+  - name: render
+    image: asia-southeast1-docker.pkg.dev/cd-image-prod/cd-image/cd@sha256:8060c94d9e8ba1aa298ffdd8d53a6b6070b6455f497b8ea9414484994f1ba4e9
+    command: ['/bin/bash']
+    args:
+      - '-c'
+      - |-
+        echo "Sample manifest rendered content" > manifest.txt
+        gsutil cp manifest.txt $CLOUD_DEPLOY_OUTPUT_GCS_PATH/manifest.txt
+        echo {\"resultStatus\": \"SUCCEEDED\", \"manifestFile\": \"$CLOUD_DEPLOY_OUTPUT_GCS_PATH/manifest.txt\"} > results.json
+        gsutil cp results.json $CLOUD_DEPLOY_OUTPUT_GCS_PATH/results.json
+- name: custom-deploy
+  containers:
+  - name: deploy
+    image: asia-southeast1-docker.pkg.dev/cd-image-prod/cd-image/cd@sha256:8060c94d9e8ba1aa298ffdd8d53a6b6070b6455f497b8ea9414484994f1ba4e9
+    command: ['/bin/bash']
+    args:
+      - '-c'
+      - |-
+        echo
+        echo {\"resultStatus\": \"SUCCEEDED\"} > results.json
+        gsutil cp results.json $CLOUD_DEPLOY_OUTPUT_GCS_PATH/results.json
