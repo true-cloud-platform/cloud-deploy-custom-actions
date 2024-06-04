@@ -29,7 +29,7 @@ customActions:
             echo "[MOCK] Deploy to CloudRun..."
             # echo $CLOUD_DEPLOY_OUTPUT_GCS_PATH
 
-            gsutil cp $CLOUD_DEPLOY_MANIFEST_GCS_PATH/manifest.yaml manifest.yaml
+            gsutil cp $CLOUD_DEPLOY_MANIFEST_GCS_PATH manifest.yaml
 
 
 
