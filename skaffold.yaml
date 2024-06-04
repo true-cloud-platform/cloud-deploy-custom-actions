@@ -27,6 +27,7 @@ customActions:
         - '-c'
         - |-
             echo "[MOCK] Deploy to CloudRun..."
+            pwd
             ls -l
 
             echo {\"resultStatus\": \"SUCCEEDED\"} > results.json
