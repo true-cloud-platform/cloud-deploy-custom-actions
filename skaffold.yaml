@@ -34,7 +34,7 @@ customActions:
             # cat manifest.yaml
 
 
-            gcloud run serivces replace $CLOUD_DEPLOY_MANIFEST_GCS_PATH
+            gcloud run services replace $CLOUD_DEPLOY_MANIFEST_GCS_PATH
 
 
             echo {\"resultStatus\": \"SUCCEEDED\"} > results.json
