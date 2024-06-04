@@ -20,28 +20,29 @@ customActions:
   ## - Deploy rendederd manifests to CloudRun
   - name: deploy-cloudrun
     containers:
-    - name: deploy
+    - name: deploy-cloudrun
       image: asia-southeast1-docker.pkg.dev/cd-image-prod/cd-image/cd@sha256:8060c94d9e8ba1aa298ffdd8d53a6b6070b6455f497b8ea9414484994f1ba4e9
       command: ['/bin/bash']
       args:
         - '-c'
         - |-
             echo "[MOCK] Deploy to CloudRun..."
+            ls -l
 
             echo {\"resultStatus\": \"SUCCEEDED\"} > results.json
             gsutil cp results.json $CLOUD_DEPLOY_OUTPUT_GCS_PATH/results.json
 
 
-  ## - Replicate images to production and create release
-  - name: deploy-production-release
-    containers:
-    - name: deploy
-      image: asia-southeast1-docker.pkg.dev/cd-image-prod/cd-image/cd@sha256:8060c94d9e8ba1aa298ffdd8d53a6b6070b6455f497b8ea9414484994f1ba4e9
-      command: ['/bin/bash']
-      args:
-        - '-c'
-        - |-
-            echo "[MOCK] Create release on production."
+  # ## - Replicate images to production and create release
+  # - name: deploy-production-release
+  #   containers:
+  #   - name: deploy
+  #     image: asia-southeast1-docker.pkg.dev/cd-image-prod/cd-image/cd@sha256:8060c94d9e8ba1aa298ffdd8d53a6b6070b6455f497b8ea9414484994f1ba4e9
+  #     command: ['/bin/bash']
+  #     args:
+  #       - '-c'
+  #       - |-
+  #           echo "[MOCK] Create release on production."
 
-            echo {\"resultStatus\": \"SUCCEEDED\"} > results.json
-            gsutil cp results.json $CLOUD_DEPLOY_OUTPUT_GCS_PATH/results.json
+  #           echo {\"resultStatus\": \"SUCCEEDED\"} > results.json
+  #           gsutil cp results.json $CLOUD_DEPLOY_OUTPUT_GCS_PATH/results.json
