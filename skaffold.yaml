@@ -31,7 +31,7 @@ customActions:
 
             mkdir -p /workspace
 
-            echo CLOUD_DEPLOY_INPUT_GCS_PATH
+            echo $CLOUD_DEPLOY_INPUT_GCS_PATH
 
             gsutil cp $CLOUD_DEPLOY_INPUT_GCS_PATH /workspace/artifact.tar
             cd /workspace
