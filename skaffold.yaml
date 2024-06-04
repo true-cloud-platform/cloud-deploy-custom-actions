@@ -29,8 +29,14 @@ customActions:
             set -e
             echo "[MOCK] Deploy to CloudRun..."
 
-            echo $CLOUD_DEPLOY_INPUT_GCS_PATH
+            mkdir -p /workspace
 
+            gsutil cp $CLOUD_DEPLOY_INPUT_GCS_PATH /workspace/artifact.tar
+            cd /workspace
+            tar xvf artifact.tar
+            ls -l
+
+            cd ../
             gsutil cp $CLOUD_DEPLOY_MANIFEST_GCS_PATH manifest.yaml
             gcloud run services replace manifest.yaml --region $CLOUD_DEPLOY_LOCATION
 
