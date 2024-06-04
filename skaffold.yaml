@@ -4,20 +4,6 @@ metadata:
   name: deploy
 
 customActions:
-# - name: custom-render
-#   containers:
-#   - name: render
-#     image: asia-southeast1-docker.pkg.dev/cd-image-prod/cd-image/cd@sha256:8060c94d9e8ba1aa298ffdd8d53a6b6070b6455f497b8ea9414484994f1ba4e9
-#     command: ['/bin/bash']
-#     args:
-#       - '-c'
-#       - |-
-#         echo "Sample manifest rendered content" > manifest.txt
-#         gsutil cp manifest.txt $CLOUD_DEPLOY_OUTPUT_GCS_PATH/manifest.txt
-#         echo {\"resultStatus\": \"SUCCEEDED\", \"manifestFile\": \"$CLOUD_DEPLOY_OUTPUT_GCS_PATH/manifest.txt\"} > results.json
-#         gsutil cp results.json $CLOUD_DEPLOY_OUTPUT_GCS_PATH/results.json
-
-  ## - Deploy rendederd manifests to CloudRun
   - name: deploy-cloudrun
     containers:
     - name: deploy-cloudrun
@@ -26,15 +12,11 @@ customActions:
       args:
         - '-c'
         - |
-            echo "[MOCK] Deploy to CloudRun..."
-
-            echo $CLOUD_DEPLOY_INPUT_GCS_PATH
-            echo $CLOUD_DEPLOY_OUTPUT_GCS_PATH
-            echo $CLOUD_DEPLOY_MANIFEST_GCS_PATH
-
-
+            echo "Deploy to CloudRun..."
 
             gsutil cp $CLOUD_DEPLOY_MANIFEST_GCS_PATH manifest.yaml
+            cat manifest.yaml
+
             gcloud run services replace manifest.yaml --region $CLOUD_DEPLOY_LOCATION
 
             echo {\"resultStatus\": \"SUCCEEDED\"} > results.json
