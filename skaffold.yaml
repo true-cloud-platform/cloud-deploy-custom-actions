@@ -30,7 +30,7 @@ customActions:
             # echo $CLOUD_DEPLOY_OUTPUT_GCS_PATH
 
             gsutil cp $CLOUD_DEPLOY_MANIFEST_GCS_PATH manifest.yaml
-            gcloud run services replace manifest.yaml
+            gcloud run services replace manifest.yaml --region $CLOUD_DEPLOY_LOCATION
 
 
             echo {\"resultStatus\": \"SUCCEEDED\"} > results.json
