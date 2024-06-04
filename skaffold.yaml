@@ -12,6 +12,7 @@ customActions:
       args:
         - '-c'
         - |
+            set -e
             echo "Deploy to CloudRun..."
 
             gsutil cp $CLOUD_DEPLOY_MANIFEST_GCS_PATH manifest.yaml
