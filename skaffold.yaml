@@ -4,6 +4,28 @@ metadata:
   name: deploy
 
 customActions:
+  - name: render-kustomize
+    containers:
+    - name: render-kustomize
+      image: asia-southeast1-docker.pkg.dev/cd-image-prod/cd-image/cd@sha256:8060c94d9e8ba1aa298ffdd8d53a6b6070b6455f497b8ea9414484994f1ba4e9
+      command: ['/bin/bash']
+      args:
+        - '-c'
+        - |
+            set -e
+            mkdir -p ./src/rendered
+
+            gsutil cp $CLOUD_DEPLOY_INPUT_GCS_PATH src.tgz
+            tar -xzf src.tgz -C ./src
+
+            cd ./src
+            kustomize build $kustomize_dir > rendered/manifest.yaml
+
+            gsutil cp rendered/manifest.yaml $CLOUD_DEPLOY_OUTPUT_GCS_PATH/manifest.yaml
+
+            echo {\"resultStatus\": \"SUCCEEDED\", \"manifestFile\": \"$CLOUD_DEPLOY_OUTPUT_GCS_PATH/manifest.yaml\"} > results.json
+            gsutil cp results.json $CLOUD_DEPLOY_OUTPUT_GCS_PATH/results.json
+
   - name: deploy-cloudrun
     containers:
     - name: deploy-cloudrun
@@ -13,14 +35,9 @@ customActions:
         - '-c'
         - |
             set -e
-            echo "Deploy to CloudRun..."
 
             gsutil cp $CLOUD_DEPLOY_MANIFEST_GCS_PATH manifest.yaml
-            cat manifest.yaml
-
             gcloud run services replace manifest.yaml --region $CLOUD_DEPLOY_LOCATION
 
             echo {\"resultStatus\": \"SUCCEEDED\"} > results.json
             gsutil cp results.json $CLOUD_DEPLOY_OUTPUT_GCS_PATH/results.json
-
-
