@@ -26,6 +26,7 @@ customActions:
             echo {\"resultStatus\": \"SUCCEEDED\", \"manifestFile\": \"$CLOUD_DEPLOY_OUTPUT_GCS_PATH/manifest.yaml\"} > results.json
             gsutil cp results.json $CLOUD_DEPLOY_OUTPUT_GCS_PATH/results.json
 
+
   - name: deploy-cloudrun
     containers:
     - name: deploy-cloudrun
