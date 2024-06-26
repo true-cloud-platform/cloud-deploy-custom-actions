@@ -19,7 +19,7 @@ customActions:
             tar -xzf src.tgz -C ./src
 
             cd ./src
-            kustomize build $kustomize_dir > rendered/manifest.yaml
+            kustomize build $manifest_dir/$kustomize_dir > rendered/manifest.yaml
 
             gsutil cp rendered/manifest.yaml $CLOUD_DEPLOY_OUTPUT_GCS_PATH/manifest.yaml
 
