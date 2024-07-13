@@ -13,17 +13,106 @@ customActions:
         - '-c'
         - |
             set -e
+
+            curl  -SsLo /usr/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && chmod +x /usr/bin/yq
+
             mkdir -p ./src/rendered
 
             gsutil cp $CLOUD_DEPLOY_INPUT_GCS_PATH src.tgz
             tar -xzf src.tgz -C ./src
 
             cd ./src
-            kustomize build $manifest_dir/$kustomize_dir > rendered/manifest.yaml
 
-            gsutil cp rendered/manifest.yaml $CLOUD_DEPLOY_OUTPUT_GCS_PATH/manifest.yaml
+            # Mode 1: Render kustomize when specific kustomize_dir (For all NonProd only)
+            if [[ -n $kustomize_dir ]]; then
+              kustomize build $manifest_dir/$kustomize_dir -o rendered/manifest.yaml
+              gsutil cp rendered/manifest.yaml $CLOUD_DEPLOY_OUTPUT_GCS_PATH/manifest.yaml
+              echo {\"resultStatus\": \"SUCCEEDED\", \"manifestFile\": \"$CLOUD_DEPLOY_OUTPUT_GCS_PATH/manifest.yaml\"} > results.json
 
-            echo {\"resultStatus\": \"SUCCEEDED\", \"manifestFile\": \"$CLOUD_DEPLOY_OUTPUT_GCS_PATH/manifest.yaml\"} > results.json
+            # Mode 2: Render promote kustomize images for cross project (For Promote to PRODUCTION only preprod, prod)
+            elif [[ -n $promote_dest_project_id ]]; then
+
+              # Prepare results source file
+              touch results.yaml
+
+              # Prepare migrate image scripts
+              cat <<EOF > rendered/migrate-images.sh
+              #!/bin/sh
+              EOF
+
+              for imageJson in $(yq e .images[] -o json $promote_src_kustomize_dir/kustomization.yaml | jq -c ); do
+                echo "----"
+                export _IMAGE_NAME=$(echo $imageJson | jq -r '.name')
+                export _IMAGE_URL=$(echo $imageJson | jq -r '.newName')
+                export _IMAGE_TAG=$(echo $imageJson | jq -r '.newTag')
+
+                # Capture src image
+                export _IMAGE="${_IMAGE_URL}:${_IMAGE_TAG}"
+
+                # Replace with project
+                export _IMAGE_URL=$(echo $_IMAGE_URL | sed "s/$PROJECT_ID/$promote_dest_project_id/" )
+
+                # Capture dest image
+                export _DEST_IMAGE="${_IMAGE_URL}:${_IMAGE_TAG}"
+
+                # Copy image to destination project
+                cat <<EOF >> rendered/migrate-images.sh
+                docker pull $_IMAGE
+                docker tag $_IMAGE $_DEST_IMAGE
+                docker push $_DEST_IMAGE
+
+            EOF
+
+                # Edit kustomization images for each overlays
+                IFS=',' read -ra ADDR <<< "$promote_dest_kustomize_dir"
+                for kustomize_dir in "${ADDR[@]}"; do
+                  # Trim leading and trailing whitespace using 'sed'
+                  kustomize_dir=$(echo "$kustomize_dir" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+                  # Print the trimmed value
+                  echo -e "Updating images in $kustomize_dir/kustomization.yaml"
+
+                  yq e -i '
+                  .images[] |= (
+                    select (.name==strenv(_IMAGE_NAME)) |
+                    .newName=strenv(_IMAGE_URL) |
+                    .newTag=strenv(_IMAGE_TAG)
+                  )
+                  ' $kustomize_dir/kustomization.yaml
+
+                  echo -e "Updated $kustomize_dir/kustomization.yaml"
+
+                  # Generate manifests
+                  manifest_name_suffix=$(echo $kustomize_dir | sed 's|./||' | sed 's|/|-|')
+                  kustomize build $manifest_dir/$kustomize_dir -o rendered/manifest-$manifest_name_suffix.yaml
+
+                  export GCS_MANIFEST_ARTIFACT_FILE=$CLOUD_DEPLOY_OUTPUT_GCS_PATH/manifest-$manifest_name_suffix.yaml
+                  gsutil cp rendered/manifest-$manifest_name_suffix.yaml $GCS_MANIFEST_ARTIFACT_FILE
+                  yq e -i '.artifactFiles += [strenv(GCS_MANIFEST_ARTIFACT_FILE)]' results.yaml
+
+                done
+              done
+
+              export GCS_IMAGE_MIGRATE_SH=$CLOUD_DEPLOY_OUTPUT_GCS_PATH/migrate-images.sh
+              gsutil cp rendered/migrate-images.sh $GCS_IMAGE_MIGRATE_SH
+              yq e -i '.artifactFiles += [strenv(GCS_IMAGE_MIGRATE_SH)]' results.yaml
+
+              yq e -i '.resultStatus = "SUCCEEDED"' results.yaml
+              yq e '.' -o json results.yaml > results.json
+
+            # - Mode 3: Generated manifest (For Production & Pre-Production only)
+            elif [[ -n $generated_kustomize_dir ]]; then
+              manifest_name_suffix=$(echo $kustomize_dir | sed 's|./||' | sed 's|/|-|')
+
+              cp manifest-$manifest_name_suffix.yaml rendered/manifest.yaml
+              gsutil cp rendered/manifest.yaml $CLOUD_DEPLOY_OUTPUT_GCS_PATH/manifest.yaml
+              echo {\"resultStatus\": \"SUCCEEDED\", \"manifestFile\": \"$CLOUD_DEPLOY_OUTPUT_GCS_PATH/manifest.yaml\"} > results.json
+
+
+            else
+              echo {\"resultStatus\": \"FAILED\", \"failureMessage\": \"Invalid target configuration.\"} > results.json
+            fi
+
             gsutil cp results.json $CLOUD_DEPLOY_OUTPUT_GCS_PATH/results.json
 
 
@@ -36,6 +125,14 @@ customActions:
         - '-c'
         - |
             set -e
+
+            # Migrate image if exists.
+            if [[ -n $promote_dest_project_id ]]; then
+              echo "Migrate images.."
+              gsutil cp $CLOUD_DEPLOY_OUTPUT_GCS_PATH/migrate-images.sh migrate-images.sh
+              chmod +x migrate-images.sh
+              ./migrate-images.sh
+            fi
 
             gsutil cp $CLOUD_DEPLOY_MANIFEST_GCS_PATH manifest.yaml
             gcloud run services replace manifest.yaml --region $CLOUD_DEPLOY_LOCATION
