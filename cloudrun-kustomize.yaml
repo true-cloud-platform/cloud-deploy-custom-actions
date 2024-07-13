@@ -39,7 +39,7 @@ customActions:
               # Prepare migrate image scripts
               cat <<EOF > rendered/migrate-images.sh
               #!/bin/sh
-              EOF
+            EOF
 
               for imageJson in $(yq e .images[] -o json $promote_src_kustomize_dir/kustomization.yaml | jq -c ); do
                 echo "----"
@@ -62,7 +62,7 @@ customActions:
                 docker tag $_IMAGE $_DEST_IMAGE
                 docker push $_DEST_IMAGE
 
-                EOF
+            EOF
 
                 # Edit kustomization images for each overlays
                 IFS=',' read -ra ADDR <<< "$promote_dest_kustomize_dir"
