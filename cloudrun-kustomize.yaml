@@ -132,10 +132,32 @@ customActions:
               gsutil cp $CLOUD_DEPLOY_OUTPUT_GCS_PATH/migrate-images.sh migrate-images.sh
               chmod +x migrate-images.sh
               ./migrate-images.sh
+
+
+              mkdir -p src
+
+              cat <<EOF > src/skaffold.yaml
+              apiVersion: skaffold/v4beta9
+              kind: Config
+              metadata:
+                name: deploy
+            EOF
+
+              gsutil cp $CLOUD_DEPLOY_OUTPUT_GCS_PATH/*.yaml src/
+
+
+              # Create cloud deploy release on destination project
+              echo "Creating "
+              gcloud deploy release create $CLOUD_DEPLOY_RELEASE \
+              --delivery-pipeline=$CLOUD_DEPLOY_DELIVERY_PIPELINE \
+              --region=$LOCATION \
+              --source=src/ \
+              --project=$promote_dest_project_id
+
+            else
+              gsutil cp $CLOUD_DEPLOY_MANIFEST_GCS_PATH manifest.yaml
+              gcloud run services replace manifest.yaml --region $CLOUD_DEPLOY_LOCATION
+
+              echo {\"resultStatus\": \"SUCCEEDED\"} > results.json
+              gsutil cp results.json $CLOUD_DEPLOY_OUTPUT_GCS_PATH/results.json
             fi
-
-            gsutil cp $CLOUD_DEPLOY_MANIFEST_GCS_PATH manifest.yaml
-            gcloud run services replace manifest.yaml --region $CLOUD_DEPLOY_LOCATION
-
-            echo {\"resultStatus\": \"SUCCEEDED\"} > results.json
-            gsutil cp results.json $CLOUD_DEPLOY_OUTPUT_GCS_PATH/results.json
