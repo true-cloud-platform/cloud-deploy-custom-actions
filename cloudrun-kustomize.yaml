@@ -133,6 +133,7 @@ customActions:
 
             # Migrate image if exists.
             if [[ -n $promote_dest_project_id ]]; then
+
               echo "Migrate images.."
               gsutil cp $CLOUD_DEPLOY_OUTPUT_GCS_PATH/migrate-images.sh migrate-images.sh
               chmod +x migrate-images.sh
@@ -160,6 +161,7 @@ customActions:
               --project=$promote_dest_project_id
 
             else
+              echo "Deploy to Cloud Run.."
               gsutil cp $CLOUD_DEPLOY_MANIFEST_GCS_PATH manifest.yaml
               gcloud run services replace manifest.yaml --region $CLOUD_DEPLOY_LOCATION
 
