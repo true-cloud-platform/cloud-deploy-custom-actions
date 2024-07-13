@@ -25,6 +25,7 @@ customActions:
 
             # Mode 1: Render kustomize when specific kustomize_dir (For all NonProd only)
             if [[ -n $kustomize_dir ]]; then
+              echo "Mode 1: Build manifest from kustomization [$kustomize_dir]"
               kustomize build $manifest_dir/$kustomize_dir -o rendered/manifest.yaml
               gsutil cp rendered/manifest.yaml $CLOUD_DEPLOY_OUTPUT_GCS_PATH/manifest.yaml
               echo {\"resultStatus\": \"SUCCEEDED\", \"manifestFile\": \"$CLOUD_DEPLOY_OUTPUT_GCS_PATH/manifest.yaml\"} > results.json
@@ -61,7 +62,7 @@ customActions:
                 docker tag $_IMAGE $_DEST_IMAGE
                 docker push $_DEST_IMAGE
 
-            EOF
+                EOF
 
                 # Edit kustomization images for each overlays
                 IFS=',' read -ra ADDR <<< "$promote_dest_kustomize_dir"
