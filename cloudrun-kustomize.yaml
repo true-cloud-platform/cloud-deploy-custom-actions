@@ -43,7 +43,7 @@ customActions:
               #!/bin/sh
             EOF
 
-              for imageJson in $(yq e .images[] -o json $promote_src_kustomize_dir/kustomization.yaml | jq -c ); do
+              for imageJson in $(yq e .images[] -o json $manifest_dir/$promote_src_kustomize_dir/kustomization.yaml | jq -c ); do
                 echo "----"
                 export _IMAGE_NAME=$(echo $imageJson | jq -r '.name')
                 export _IMAGE_URL=$(echo $imageJson | jq -r '.newName')
@@ -81,9 +81,9 @@ customActions:
                     .newName=strenv(_IMAGE_URL) |
                     .newTag=strenv(_IMAGE_TAG)
                   )
-                  ' $kustomize_dir/kustomization.yaml
+                  ' $manifest_dir/$kustomize_dir/kustomization.yaml
 
-                  echo -e "Updated $kustomize_dir/kustomization.yaml"
+                  echo -e "Updated $manifest_dir/$kustomize_dir/kustomization.yaml"
 
                   # Generate manifests
                   manifest_name_suffix=$(echo $kustomize_dir | sed 's|./||' | sed 's|/|-|')
