@@ -78,10 +78,10 @@ customActions:
                 yq e -i '
                 .images[] |= (
                   select (.name==strenv(_IMAGE_NAME)) |
-                  .newName=strenv(_IMAGE_URL) |
+                  .newName=strenv(_DEST_IMAGE_URL) |
                   .newTag=strenv(_IMAGE_TAG)
                 )
-                ' $manifest_dir/$kustomize_dir/kustomization.yaml
+                ' $manifest_dir/base/kustomization.yaml
                 echo -e "Updated $manifest_dir/base/kustomization.yaml"
               done
 
