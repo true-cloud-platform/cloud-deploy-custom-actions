@@ -14,10 +14,12 @@ customActions:
         - |
             set -e
 
+            echo "Installing yq ..."
             curl  -SsLo /usr/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && chmod +x /usr/bin/yq
 
             rendered_dir=$(mktemp -d -t rendered.XXXXXX)
 
+            mkdir -p src
             gsutil cp $CLOUD_DEPLOY_INPUT_GCS_PATH src.tgz
             tar -xzf src.tgz -C ./src
 
