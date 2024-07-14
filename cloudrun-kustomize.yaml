@@ -56,6 +56,8 @@ customActions:
 
                 # Replace with project
                 export _DEST_IMAGE_URL=$(echo $_IMAGE_URL | sed "s/$PROJECT_ID/$promote_dest_project_id/" )
+                echo "_IMAGE_URL [${_IMAGE_URL}]"
+                echo "_DEST_IMAGE_URL [$_DEST_IMAGE_URL]"
 
                 # Capture dest image
                 export _DEST_IMAGE="${_DEST_IMAGE_URL}:${_IMAGE_TAG}"
