@@ -55,7 +55,7 @@ customActions:
                 export _IMAGE="${_IMAGE_URL}:${_IMAGE_TAG}"
 
                 # Replace with project
-                export _DEST_IMAGE_URL=$(echo $_IMAGE_URL | sed "s/$PROJECT_ID/$promote_dest_project_id/" )
+                export _DEST_IMAGE_URL=$(echo $_IMAGE_URL | sed -e "s/$PROJECT_ID/$promote_dest_project_id/" )
                 echo "_IMAGE_URL [${_IMAGE_URL}]"
                 echo "_DEST_IMAGE_URL [$_DEST_IMAGE_URL]"
 
