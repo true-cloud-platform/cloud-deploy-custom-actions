@@ -26,7 +26,7 @@ customActions:
             cd ./src
 
             # Mode 1: Render kustomize when specific kustomize_dir (For all NonProd only)
-            if [[ -n $kustomize_dir ]]; then
+            if [[ -n $kustomize_dir ]] && [[ -z $promote_dest_project_id ]]; then
               echo "Mode 1: Build manifest from kustomization [$kustomize_dir]"
               kustomize build $manifest_dir/$kustomize_dir -o $rendered_dir/manifest.yaml
               gsutil cp $rendered_dir/manifest.yaml $CLOUD_DEPLOY_OUTPUT_GCS_PATH/manifest.yaml
@@ -119,12 +119,12 @@ customActions:
               GCS_ARTIFACTS_PATH=$(echo $CLOUD_DEPLOY_MANIFEST_GCS_PATH | sed 's/manifest.yaml//')
 
               echo "Executing migrate-images.sh to push images to project $promote_dest_project_id.."
-              gsutil cp $GCS_ARTIFACTS_PATH/migrate-images.sh migrate-images.sh
+              gsutil cp ${GCS_ARTIFACTS_PATH}migrate-images.sh migrate-images.sh
               chmod +x migrate-images.sh
               ./migrate-images.sh
 
               mkdir -p src
-              gsutil cp $GCS_ARTIFACTS_PATH/manifests.tgz manifests.tgz
+              gsutil cp ${GCS_ARTIFACTS_PATH}manifests.tgz manifests.tgz
               tar xzf manifests.tgz -C src/
 
               cat <<EOF > src/skaffold.yaml
