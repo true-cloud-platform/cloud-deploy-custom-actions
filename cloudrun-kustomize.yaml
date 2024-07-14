@@ -124,11 +124,27 @@ customActions:
 
               GCS_ARTIFACTS_PATH=$(echo $CLOUD_DEPLOY_MANIFEST_GCS_PATH | sed 's/manifest.yaml//')
 
-              gsutil cp ${GCS_ARTIFACTS_PATH}migrate-images.sh migrate-images.sh
+              mkdir -p migrate
+
+              cat <<EOF > migrate/cloudbuild-migrate-images.yaml
+              options:
+                logging: CLOUD_LOGGING_ONLY
+                dynamicSubstitutions: true
+                automapSubstitutions: true
+              steps:
+                - id: transfer_image
+                  name: gcr.io/cloud-builders/docker
+                  script: |
+                    chmod +x migrate-images.sh
+                    ./migrate-images.sh
+
+            EOF
+
+              gsutil cp ${GCS_ARTIFACTS_PATH}migrate-images.sh migrate/migrate-images.sh
               echo "Executing migrate-images.sh to push images to project $promote_dest_project_id.."
-              chmod +x migrate-images.sh
-              cat migrate-images.sh
-              ./migrate-images.sh
+
+              ## - Submit cloudbuild for migrate images
+              gcloud builds submit migrate/ --config=migrate/cloudbuild-migrate-images.yaml --region=$CLOUD_DEPLOY_LOCATION
 
               mkdir -p src
               gsutil cp ${GCS_ARTIFACTS_PATH}manifests.tgz manifests.tgz
@@ -140,6 +156,8 @@ customActions:
               metadata:
                 name: deploy
             EOF
+
+
 
               # Create cloud deploy release on destination project
               echo "Creating Cloud Deploy release on project [$promote_dest_project_id]"
