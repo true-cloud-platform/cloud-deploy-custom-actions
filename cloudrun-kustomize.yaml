@@ -165,7 +165,7 @@ customActions:
 
               # Create cloud deploy release on destination project
               echo "Creating Cloud Deploy release on project [$promote_dest_project_id]"
-              gcloud deploy release create $CLOUD_DEPLOY_RELEASE \
+              gcloud deploy releases create $CLOUD_DEPLOY_RELEASE \
               --delivery-pipeline=$CLOUD_DEPLOY_DELIVERY_PIPELINE \
               --region=$LOCATION \
               --source=src/ \
