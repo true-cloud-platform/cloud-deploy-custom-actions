@@ -33,7 +33,7 @@ customActions:
             # Mode 2: Render promote kustomize images for cross project (For Promote to PRODUCTION only preprod, prod)
             elif [[ -n $promote_dest_project_id ]]; then
 
-              echo "Mode 2: Promote to production"
+              echo "Mode 2: Promote to production [$promote_src_kustomize_dir]  [$promote_dest_kustomize_dir]"
 
               # Prepare results source file
               touch results.yaml
@@ -106,7 +106,7 @@ customActions:
             # - Mode 3: Generated manifest (For Production & Pre-Production only)
             elif [[ -n $generated_kustomize_dir ]]; then
 
-              echo "Mode 3: Production"
+              echo "Mode 3: select rendered manifest [manifest-$manifest_name_suffix]"
               manifest_name_suffix=$(echo $kustomize_dir | sed 's|./||' | sed 's|/|-|')
 
               cp manifest-$manifest_name_suffix.yaml rendered/manifest.yaml
