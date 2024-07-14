@@ -144,7 +144,11 @@ customActions:
               echo "Executing migrate-images.sh to push images to project $promote_dest_project_id.."
 
               ## - Submit cloudbuild for migrate images
-              gcloud builds submit migrate/ --config=migrate/cloudbuild-migrate-images.yaml --region=$CLOUD_DEPLOY_LOCATION
+              PROJECT_ID=$(gcloud config get-value project)
+              gcloud builds submit migrate/ \
+              --config=migrate/cloudbuild-migrate-images.yaml \
+              --region=$CLOUD_DEPLOY_LOCATION \
+              --service-account=projects/$PROJECT_ID/serviceAccounts/rollout@$PROJECT_ID.iam.gserviceaccount.com
 
               mkdir -p src
               gsutil cp ${GCS_ARTIFACTS_PATH}manifests.tgz manifests.tgz
