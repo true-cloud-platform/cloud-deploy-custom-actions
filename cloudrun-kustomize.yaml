@@ -176,7 +176,7 @@ customActions:
               echo "Deploy to Cloud Run.."
               gsutil cp $CLOUD_DEPLOY_MANIFEST_GCS_PATH manifest.yaml
               gcloud run services replace manifest.yaml --region $CLOUD_DEPLOY_LOCATION
-
-              echo {\"resultStatus\": \"SUCCEEDED\"} > results.json
-              gsutil cp results.json $CLOUD_DEPLOY_OUTPUT_GCS_PATH/results.json
             fi
+
+            echo {\"resultStatus\": \"SUCCEEDED\"} > results.json
+            gsutil cp results.json $CLOUD_DEPLOY_OUTPUT_GCS_PATH/results.json
