@@ -89,6 +89,7 @@ customActions:
               gsutil cp $rendered_dir/manifests.tgz $CLOUD_DEPLOY_OUTPUT_GCS_PATH/manifests.tgz
 
               ## - Shell script for move images
+              cat $rendered_dir/migrate-images.sh
               gsutil cp $rendered_dir/migrate-images.sh $CLOUD_DEPLOY_OUTPUT_GCS_PATH/migrate-images.sh
 
               ## - Manifest
