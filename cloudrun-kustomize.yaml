@@ -55,10 +55,10 @@ customActions:
                 export _IMAGE="${_IMAGE_URL}:${_IMAGE_TAG}"
 
                 # Replace with project
-                export _IMAGE_URL=$(echo $_IMAGE_URL | sed "s/$PROJECT_ID/$promote_dest_project_id/" )
+                export _DEST_IMAGE_URL=$(echo $_IMAGE_URL | sed "s/$PROJECT_ID/$promote_dest_project_id/" )
 
                 # Capture dest image
-                export _DEST_IMAGE="${_IMAGE_URL}:${_IMAGE_TAG}"
+                export _DEST_IMAGE="${_DEST_IMAGE_URL}:${_IMAGE_TAG}"
 
                 # Copy image to destination project
                 cat <<EOF >> $rendered_dir/migrate-images.sh
