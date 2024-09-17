@@ -150,7 +150,10 @@ customActions:
               --region=$CLOUD_DEPLOY_LOCATION \
               --service-account=projects/$PROJECT_ID/serviceAccounts/rollout@$PROJECT_ID.iam.gserviceaccount.com
 
+              echo "Successful migrate images to $promote_dest_project_id."
               mkdir -p src
+
+              echo "Copying manifests.tgz from gcs.."
               gsutil cp ${GCS_ARTIFACTS_PATH}manifests.tgz manifests.tgz
               tar xzvf manifests.tgz -C src/
 
@@ -161,10 +164,8 @@ customActions:
                 name: deploy
             EOF
 
-
-
               # Create cloud deploy release on destination project
-              echo "Creating Cloud Deploy release on project [$promote_dest_project_id]"
+              echo "Creating Cloud Deploy release on project [$promote_dest_project_id].."
               gcloud deploy releases create $CLOUD_DEPLOY_RELEASE \
               --delivery-pipeline=$CLOUD_DEPLOY_DELIVERY_PIPELINE \
               --region=$CLOUD_DEPLOY_LOCATION \
@@ -178,5 +179,5 @@ customActions:
               gcloud run services replace manifest.yaml --region $CLOUD_DEPLOY_LOCATION
             fi
 
-            echo {\"resultStatus\": \"SUCCEEDED\"} > results.json
+            echo {\"resultStatus\": \"SUCCEEDED\"} | tee results.json
             gsutil cp results.json $CLOUD_DEPLOY_OUTPUT_GCS_PATH/results.json
