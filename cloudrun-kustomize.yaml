@@ -176,7 +176,10 @@ customActions:
             else
               echo "Deploy to Cloud Run.."
               gsutil cp $CLOUD_DEPLOY_MANIFEST_GCS_PATH manifest.yaml
-              gcloud run services replace manifest.yaml --region $CLOUD_DEPLOY_LOCATION
+
+              # Add for support cloudrun jobs
+              kind=$(yq e '.kind' manifest.yaml)
+              gcloud run ${kind,,}s replace manifest.yaml --region $CLOUD_DEPLOY_LOCATION
             fi
 
             echo {\"resultStatus\": \"SUCCEEDED\"} | tee results.json
