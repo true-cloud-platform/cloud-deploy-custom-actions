@@ -7,7 +7,7 @@ customActions:
   - name: render-kustomize
     containers:
     - name: render-kustomize
-      image: asia-southeast1-docker.pkg.dev/cd-image-prod/cd-image/cd@sha256:8060c94d9e8ba1aa298ffdd8d53a6b6070b6455f497b8ea9414484994f1ba4e9
+      image: asia-southeast1-docker.pkg.dev/cd-image-prod/cd-image/cd:2.14-cloud_deploy_image_20250313.01_RC00
       command: ['/bin/bash']
       args:
         - '-c'
@@ -112,7 +112,7 @@ customActions:
   - name: deploy-cloudrun
     containers:
     - name: deploy-cloudrun
-      image: asia-southeast1-docker.pkg.dev/cd-image-prod/cd-image/cd@sha256:8060c94d9e8ba1aa298ffdd8d53a6b6070b6455f497b8ea9414484994f1ba4e9
+      image: asia-southeast1-docker.pkg.dev/cd-image-prod/cd-image/cd:2.14-cloud_deploy_image_20250313.01_RC00
       command: ['/bin/bash']
       args:
         - '-c'
