@@ -7,7 +7,7 @@ customActions:
   - name: render-kustomize
     containers:
     - name: render-kustomize
-      image: asia-southeast1-docker.pkg.dev/gcp-noexp-wl-prod01-5a1f/true-cloud-platform/cd:2.16
+      image: asia-southeast1-docker.pkg.dev/gcp-noexp-wl-prod01-5a1f/true-cloud-platform/cd:2.14
       command: ['/bin/bash']
       args:
         - '-c'
@@ -112,7 +112,7 @@ customActions:
   - name: deploy-cloudrun
     containers:
     - name: deploy-cloudrun
-      image: asia-southeast1-docker.pkg.dev/gcp-noexp-wl-prod01-5a1f/true-cloud-platform/cd:2.16
+      image: asia-southeast1-docker.pkg.dev/gcp-noexp-wl-prod01-5a1f/true-cloud-platform/cd:2.14
       command: ['/bin/bash']
       args:
         - '-c'
